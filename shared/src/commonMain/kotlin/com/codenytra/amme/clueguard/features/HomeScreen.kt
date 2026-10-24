@@ -38,10 +38,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,27 +53,22 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import clueguard.shared.generated.resources.Res
 import clueguard.shared.generated.resources.icon
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun HomeScreen(onSettingsClick: () -> Unit) {
 
-    val passwords = remember {
-        mutableStateListOf(
-            Password(
-                password = "Example#26",
-                platform = "Facebook"
-            ),
-            Password(
-                password = "Example123!",
-                platform = "Google"
-            ),
-            Password(
-                password = "AnotherExample!",
-                platform = "GitHub"
-            )
-        )
+    val database = LocalClueGuardDatabase.current
+
+    val dao = remember(database) {
+        database.passwordDao
     }
+
+    val passwords by dao.getAllAsFlow()
+        .collectAsState(initial = emptyList())
+
+    val scope = rememberCoroutineScope()
 
     var showAddDialog by remember { mutableStateOf(false) }
 
@@ -186,12 +182,13 @@ fun HomeScreen(onSettingsClick: () -> Unit) {
         AddPasswordDialog(
             onDismiss = { showAddDialog = false },
             onSave = { platform, password ->
-                passwords.add(
-                    Password(
+                scope.launch {
+                    dao.insert(PasswordEntity(
                         platform = platform,
                         password = password
                     )
-                )
+                    )
+                }
                 showAddDialog = false
             }
         )
@@ -234,7 +231,7 @@ private fun EmptyState() {
 
 @Composable
 private fun PasswordCard(
-    password: Password
+    password: PasswordEntity
 ) {
     var isPasswordVisible by remember { mutableStateOf(false) }
 
@@ -350,7 +347,7 @@ private fun AddPasswordDialog(
                     value = password,
                     onValueChange = { password = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Password") },
+                    label = { Text("PasswordEntity") },
                     singleLine = true,
                     visualTransformation = if (isPasswordVisible) {
                         VisualTransformation.None
