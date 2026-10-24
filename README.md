@@ -134,6 +134,4 @@ Security is a core design goal for ClueGuard. Planned security work includes:
 
 ClueGuard is an educational and development project. Its inclusion of security-related technologies or planned features does not, by itself, establish that the application is secure. Do not use it to store real credentials until the relevant security controls have been implemented, reviewed, and tested.
 
-## 📄 License
-
-No license has been specified yet. Unless a license is added to the repository, reuse and redistribution are not automatically permitted. Add a license file to make the project's usage terms explicit.
+## [📄 License] (LICENSE.md)
