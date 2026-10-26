@@ -1,10 +1,10 @@
-package com.codenytra.amme.clueguard
+package com.codenytra.amme.clueguard.data.database
 
 import androidx.room3.ConstructedBy
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomDatabaseConstructor
-import com.codenytra.amme.clueguard.database.PasswordDao
+import com.codenytra.amme.clueguard.data.model.PasswordEntity
 
 @Database(entities = [PasswordEntity::class], version = 1)
 @ConstructedBy(ClueGuardDatabaseConstructor::class)

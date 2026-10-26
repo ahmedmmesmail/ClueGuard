@@ -1,4 +1,4 @@
-package com.codenytra.amme.clueguard
+package com.codenytra.amme.clueguard.data.database
 
 import androidx.compose.runtime.staticCompositionLocalOf
 

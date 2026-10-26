@@ -1,4 +1,4 @@
-package com.codenytra.amme.clueguard
+package com.codenytra.amme.clueguard.features
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +38,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,24 +54,36 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import clueguard.shared.generated.resources.Res
 import clueguard.shared.generated.resources.icon
+import com.codenytra.amme.clueguard.BrandGradient
+import com.codenytra.amme.clueguard.data.database.LocalClueGuardDatabase
+import com.codenytra.amme.clueguard.data.repository.PasswordRepository
+import com.codenytra.amme.clueguard.data.repository.PasswordSummary
+import com.codenytra.amme.clueguard.security.SecurityResult
+import com.codenytra.amme.clueguard.security.createEncryptionManager
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun HomeScreen(onSettingsClick: () -> Unit) {
 
     val database = LocalClueGuardDatabase.current
 
-    val dao = remember(database) {
-        database.passwordDao
+    val repository = remember(database) {
+        PasswordRepository(
+            dao = database.passwordDao,
+            encryption = createEncryptionManager()
+        )
     }
 
-    val passwords by dao.getAllAsFlow()
+    val passwords by repository.observeAll()
         .collectAsState(initial = emptyList())
 
     val scope = rememberCoroutineScope()
 
     var showAddDialog by remember { mutableStateOf(false) }
+    var saveError by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -170,8 +183,11 @@ fun HomeScreen(onSettingsClick: () -> Unit) {
                     contentPadding = PaddingValues(bottom = 100.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(items = passwords) { item ->
-                        PasswordCard(password = item)
+                    items(items = passwords, key = { it.id }) { item ->
+                        PasswordCard(
+                            item = item,
+                            onReveal = { repository.reveal(item.id) }
+                        )
                     }
                 }
             }
@@ -180,16 +196,23 @@ fun HomeScreen(onSettingsClick: () -> Unit) {
 
     if (showAddDialog) {
         AddPasswordDialog(
-            onDismiss = { showAddDialog = false },
-            onSave = { platform, password ->
-                scope.launch {
-                    dao.insert(PasswordEntity(
-                        platform = platform,
-                        password = password
-                    )
-                    )
-                }
+            errorMessage = saveError,
+            onDismiss = {
                 showAddDialog = false
+                saveError = null
+            },
+            onSave = { username, platform, password ->
+                scope.launch {
+                    when (repository.add(platform, username.trim(), password)) {
+                        is SecurityResult.Success -> {
+                            saveError = null
+                            showAddDialog = false
+                        }
+                        is SecurityResult.Error -> {
+                            saveError = "Couldn't save the password securely. Please try again."
+                        }
+                    }
+                }
             }
         )
     }
@@ -231,9 +254,22 @@ private fun EmptyState() {
 
 @Composable
 private fun PasswordCard(
-    password: PasswordEntity
+    item: PasswordSummary,
+    onReveal: suspend () -> SecurityResult<String>
 ) {
-    var isPasswordVisible by remember { mutableStateOf(false) }
+    // The decrypted password lives here only while it is visible.
+    var revealedPassword by remember { mutableStateOf<String?>(null) }
+    var revealError by remember { mutableStateOf(false) }
+    val isPasswordVisible = revealedPassword != null
+    val scope = rememberCoroutineScope()
+
+    // Auto-hide (and drop the plaintext) after 15 seconds.
+    LaunchedEffect(revealedPassword) {
+        if (revealedPassword != null) {
+            delay(15_000.milliseconds)
+            revealedPassword = null
+        }
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -273,14 +309,18 @@ private fun PasswordCard(
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
-                    text = password.platform,
+                    text = item.platform,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
                 Text(
-                    text = if (isPasswordVisible) password.password else "••••••••••••",
+                    text = when {
+                        revealError -> "Couldn't decrypt this password"
+                        revealedPassword != null -> revealedPassword!!
+                        else -> "••••••••••••"
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -289,7 +329,21 @@ private fun PasswordCard(
             }
 
             IconButton(
-                onClick = { isPasswordVisible = !isPasswordVisible }
+                onClick = {
+                    if (isPasswordVisible) {
+                        revealedPassword = null
+                    } else {
+                        scope.launch {
+                            when (val result = onReveal()) {
+                                is SecurityResult.Success -> {
+                                    revealError = false
+                                    revealedPassword = result.data
+                                }
+                                is SecurityResult.Error -> revealError = true
+                            }
+                        }
+                    }
+                }
             ) {
                 Icon(
                     imageVector = if (isPasswordVisible) {
@@ -311,9 +365,11 @@ private fun PasswordCard(
 
 @Composable
 private fun AddPasswordDialog(
+    errorMessage: String?,
     onDismiss: () -> Unit,
-    onSave: (platform: String, password: String) -> Unit
+    onSave: (username: String, platform: String, password: String) -> Unit
 ) {
+    var username by remember { mutableStateOf("") }
     var platform by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
@@ -344,10 +400,19 @@ private fun AddPasswordDialog(
                 )
 
                 OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("username") },
+                    placeholder = { Text("e.g. ahmedmmesmail") },
+                    singleLine = true
+                )
+
+                OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("PasswordEntity") },
+                    label = { Text("Password") },
                     singleLine = true,
                     visualTransformation = if (isPasswordVisible) {
                         VisualTransformation.None
@@ -369,11 +434,19 @@ private fun AddPasswordDialog(
                         }
                     }
                 )
+
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
         },
         confirmButton = {
             Button(
-                onClick = { onSave(platform.trim(), password) },
+                onClick = { onSave(username, platform.trim(), password) },
                 enabled = platform.isNotBlank() && password.isNotBlank()
             ) {
                 Text("Save")

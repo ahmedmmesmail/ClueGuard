@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import com.codenytra.amme.clueguard.data.database.ClueGuardDatabase
 import kotlinx.coroutines.Dispatchers
 
 fun getDatabaseBuilder(

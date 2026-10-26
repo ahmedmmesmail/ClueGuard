@@ -1,4 +1,4 @@
-package com.codenytra.amme.clueguard
+package com.codenytra.amme.clueguard.navigation
 
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -19,6 +19,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import com.codenytra.amme.clueguard.features.HomeScreen
 import com.codenytra.amme.clueguard.features.settings.SettingsScreen
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
@@ -71,7 +72,11 @@ fun AppNavigation() {
 
             entryProvider = entryProvider {
                 entry<Home> {
-                    HomeScreen(onSettingsClick = { backStack.add(Settings) })
+                    HomeScreen(onSettingsClick = {
+                        backStack.add(
+                            Settings
+                        )
+                    })
                 }
                 entry<Settings> {
                     SettingsScreen(onBack = { backStack.removeLastOrNull() })

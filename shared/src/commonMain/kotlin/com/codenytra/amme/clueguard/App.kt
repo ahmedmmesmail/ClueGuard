@@ -4,6 +4,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Brush
+import com.codenytra.amme.clueguard.data.database.ClueGuardDatabase
+import com.codenytra.amme.clueguard.data.database.LocalClueGuardDatabase
+import com.codenytra.amme.clueguard.navigation.AppNavigation
 import com.codenytra.amme.clueguard.ui.theme.ClueGuardAppTheme
 import com.codenytra.amme.clueguard.ui.theme.ClueGuardDarkRed
 import com.codenytra.amme.clueguard.ui.theme.ClueGuardRed
@@ -14,7 +17,7 @@ val BrandGradient = Brush.linearGradient(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun App( database: ClueGuardDatabase ) {
+fun App( database: ClueGuardDatabase) {
     CompositionLocalProvider(
         LocalClueGuardDatabase provides database
     ) {
