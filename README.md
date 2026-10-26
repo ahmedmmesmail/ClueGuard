@@ -16,15 +16,16 @@ ClueGuard is a password manager project built with Kotlin Multiplatform and Comp
 
 ## 🛠️ Tech Stack
 
-| Technology               | Purpose                                               |
-|--------------------------|-------------------------------------------------------|
-| Kotlin Multiplatform     | Shared application logic                              |
-| Compose Multiplatform    | Cross-platform user interface                         |
-| Room Database            | Local database persistence                            |
-| Navigation Compose       | Navigate between screens and manage navigation routes |
-| Kotlin Coroutines & Flow | Asynchronous operations and reactive data streams     |
-| Android Keystore         | Planned Android encryption-key protection             |
-| Apple Keychain           | Planned iOS secret and key protection                 |
+| Technology               | Purpose                                                              |
+|--------------------------|----------------------------------------------------------------------|
+| Kotlin Multiplatform     | Shared application logic                                             |
+| Compose Multiplatform    | Cross-platform user interface                                        |
+| Room Database            | Local database persistence                                           |
+| Navigation Compose       | Navigate between screens and manage navigation routes                |
+| Kotlin Coroutines & Flow | Asynchronous operations and reactive data streams                    |
+| AES-256-GCM Encryption   | Authenticated encryption of passwords before they are stored in Room |
+| Android Keystore         | Hardware-backed, non-exportable protection of the AES encryption key |
+| Apple Keychain           | Planned iOS secret and key protection                                |
 
 *Platform security integrations are planned and should not be considered implemented until verified in the codebase.*
 
