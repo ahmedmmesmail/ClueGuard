@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ============ عام ============ -->
+    <string name="app_name">El8animah</string>                <!-- انسخ قيمتك الأصلية -->
+    <string name="app_desc">TODO: انسخ وصف التطبيق من strings.xml القديم</string>
+    <string name="app_icon_desc">App icon</string>
+    <string name="back">Back</string>
+    <string name="auto">Auto</string>
+
+    <!-- ============ About ============ -->
+    <string name="about_title">About</string>
+    <string name="settings_version">Version</string>
+    <string name="about_dev_header">Developed by</string>
+    <string name="about_dev_name">TODO: انسخ الاسم</string>
+    <string name="about_dev_title">TODO: انسخ المسمى الوظيفي</string>
+    <string name="about_dev_bio">TODO: انسخ النبذة</string>
+    <string name="about_contact_me">Contact me</string>
+    <string name="about_contact_email">Email</string>
+    <string name="about_contact_portfolio">Portfolio</string>
+    <string name="about_contact_github">GitHub</string>
+    <string name="about_contact_linkedin">LinkedIn</string>
+    <string name="about_made_with">Made with</string>
+    <string name="about_in_egypt">in Egypt</string>
+    <string name="no_app_to_open_link">No app found to open this link</string>
+
+    <!-- ============ Our Apps ============ -->
+    <string name="settings_our_apps">Our Apps</string>
+    <string name="app_motmaan_name">Motmaan</string>
+    <string name="app_motmaan_desc">TODO: انسخ الوصف</string>
+    <string name="app_cinemeteor_name">Cinemeteor</string>
+    <string name="app_cinemeteor_desc">TODO: انسخ الوصف</string>
+    <string name="app_detauro_name">Detauro</string>
+    <string name="app_detauro_desc">TODO: انسخ الوصف</string>
+
+    <!-- ============ Feedback ============ -->
+    <string name="feedback_title">Send feedback</string>
+    <string name="feedback_type_label">Type</string>
+    <string name="feedback_type_bug">Bug</string>
+    <string name="feedback_type_feature">Feature request</string>
+    <string name="feedback_type_other">Other</string>
+    <string name="feedback_message_hint">Write your message here…</string>
+    <string name="feedback_cancel">Cancel</string>
+    <string name="feedback_send">Send</string>
+
+    <!-- ============ Language ============ -->
+    <string name="settings_language">Language</string>
+    <string name="settings_language_system">System default</string>
+</resources>

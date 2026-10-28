@@ -86,6 +86,10 @@ class PasswordRepository(
         }
     }
 
+    suspend fun findById(id: Int): PasswordEntity? {
+        return dao.findById(id)
+    }
+
     suspend fun delete(id: Int): SecurityResult<Unit> = try {
         dao.deleteById(id)
         SecurityResult.Success(Unit)

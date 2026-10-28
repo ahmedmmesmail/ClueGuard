@@ -19,7 +19,9 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import com.codenytra.amme.clueguard.features.AboutScreen
 import com.codenytra.amme.clueguard.features.HomeScreen
+import com.codenytra.amme.clueguard.features.OurAppsRoute
 import com.codenytra.amme.clueguard.features.settings.SettingsScreen
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
@@ -31,11 +33,18 @@ data object Home : NavKey
 @Serializable
 data object Settings : NavKey
 
+@Serializable
+data object OurApps : NavKey
+
+@Serializable
+data object About : NavKey
+
 private val navConfig = SavedStateConfiguration {
     serializersModule = SerializersModule {
         polymorphic(NavKey::class) {
             subclass(Home::class, Home.serializer())
             subclass(Settings::class, Settings.serializer())
+            subclass(OurApps::class, OurApps.serializer())
         }
     }
 }
@@ -79,7 +88,17 @@ fun AppNavigation() {
                     })
                 }
                 entry<Settings> {
-                    SettingsScreen(onBack = { backStack.removeLastOrNull() })
+                    SettingsScreen(
+                        onBack = { backStack.removeLastOrNull() },
+                        onAboutClick = { backStack.add(About) },
+                        onOurAppsClick = { backStack.add(OurApps) }
+                    )
+                }
+                entry<OurApps> {
+                    OurAppsRoute(onBack = { backStack.removeLastOrNull() })
+                }
+                entry<About> {
+                    AboutScreen(versionName = "", onBack = { backStack.removeLastOrNull() })
                 }
             }
         )

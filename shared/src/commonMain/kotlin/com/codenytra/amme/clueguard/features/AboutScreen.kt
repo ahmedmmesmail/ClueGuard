@@ -1,12 +1,5 @@
-/*
-package com.codenytra.amme.el_8animah.features
+package com.codenytra.amme.clueguard.features
 
-import android.content.Context
-import android.content.Intent
-import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -43,6 +36,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -50,43 +45,29 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
-import com.codenytra.amme.el_8animah.BaseActivity
-import com.codenytra.amme.el_8animah.BuildConfig
-import com.codenytra.amme.el_8animah.R
-import com.codenytra.amme.el_8animah.ui.theme.El8animahTheme
+import clueguard.shared.generated.resources.Res
+import clueguard.shared.generated.resources.*
+import com.codenytra.amme.clueguard.ui.components.AnimatedAppIcon
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Duration.Companion.milliseconds
 
-
-class AboutActivity : BaseActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            El8animahTheme {
-                AboutScreen(onBack = { finish() })
-            }
-        }
-    }
-}
-
-
 private data class ContactInfo(
-    val labelRes: Int,
+    val label: StringResource,
     val value: String,
     val icon: ImageVector,
     val uri: String,
@@ -94,54 +75,74 @@ private data class ContactInfo(
 
 private val contacts = listOf(
     ContactInfo(
-        R.string.about_contact_email,
+        Res.string.about_contact_email,
         "ahmedmme.26@gmail.com",
         Icons.Rounded.Email,
         "mailto:ahmedmme.26@gmail.com"
     ),
     ContactInfo(
-        R.string.about_contact_portfolio,
+        Res.string.about_contact_portfolio,
         "ahmedmmesmail.me",
         Icons.Rounded.Language,
         "https://ahmedmmesmail.me"
     ),
     ContactInfo(
-        R.string.about_contact_github,
+        Res.string.about_contact_github,
         "github.com/ahmedmmesmail",
         Icons.Rounded.Code,
         "https://github.com/ahmedmmesmail"
     ),
     ContactInfo(
-        R.string.about_contact_linkedin,
+        Res.string.about_contact_linkedin,
         "linkedin.com/in/ahmedmmesmail",
         Icons.Rounded.Person,
         "https://linkedin.com/in/ahmedmmesmail"
     ),
 )
 
-*/
 /* ----------------------------------------------------------------------
  * Main Screen
- * -------------------------------------------------------------------- *//*
+ * -------------------------------------------------------------------- */
 
-
+/**
+ * @param versionName بدل BuildConfig.VERSION_NAME (مش موجود في commonMain) —
+ *                    مرّره من كل منصة (Android: BuildConfig.VERSION_NAME، iOS: من Info.plist).
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutScreen(onBack: () -> Unit = {}) {
+fun AboutScreen(
+    versionName: String,
+    onBack: () -> Unit = {},
+) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val uriHandler = LocalUriHandler.current
+    val noAppMessage = stringResource(Res.string.no_app_to_open_link)
+
+    // بديل Toast + Context.openUri
+    val openUri: (String) -> Unit = { uri ->
+        try {
+            uriHandler.openUri(uri)
+        } catch (_: Exception) {
+            scope.launch { snackbarHostState.showSnackbar(noAppMessage) }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.about_title)) },
+                title = { Text(stringResource(Res.string.about_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = stringResource(Res.string.back)
                         )
                     }
                 },
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         Column(
             modifier = Modifier
@@ -157,20 +158,19 @@ fun AboutScreen(onBack: () -> Unit = {}) {
             FadeSlideIn(delayMs = 300) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        stringResource(R.string.app_name),
+                        stringResource(Res.string.app_name),
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground,
                     )
-                    // Reads version from build.gradle.kts (requires 'buildFeatures { buildConfig = true }')
                     Text(
-                        stringResource(R.string.settings_version) + " : " + BuildConfig.VERSION_NAME,
+                        stringResource(Res.string.settings_version) + " : " + versionName,
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(Modifier.height(12.dp))
                     Text(
-                        stringResource(R.string.app_desc),
+                        stringResource(Res.string.app_desc),
                         textAlign = TextAlign.Center,
                         lineHeight = 24.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -182,13 +182,13 @@ fun AboutScreen(onBack: () -> Unit = {}) {
             FadeSlideIn(delayMs = 500) { DeveloperCard() }
 
             Spacer(Modifier.height(20.dp))
-            FadeSlideIn(delayMs = 700) { ContactSection() }
+            FadeSlideIn(delayMs = 700) { ContactSection(onOpenUri = openUri) }
 
             Spacer(Modifier.height(24.dp))
             FadeSlideIn(delayMs = 900) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        stringResource(R.string.about_made_with),
+                        stringResource(Res.string.about_made_with),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 13.sp
                     )
@@ -199,7 +199,7 @@ fun AboutScreen(onBack: () -> Unit = {}) {
                         modifier = Modifier.size(16.dp),
                     )
                     Text(
-                        stringResource(R.string.about_in_egypt),
+                        stringResource(Res.string.about_in_egypt),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 13.sp
                     )
@@ -209,12 +209,9 @@ fun AboutScreen(onBack: () -> Unit = {}) {
     }
 }
 
-
-*/
 /* ----------------------------------------------------------------------
  * Developer Card
- * -------------------------------------------------------------------- *//*
-
+ * -------------------------------------------------------------------- */
 
 @Composable
 private fun DeveloperCard() {
@@ -247,17 +244,17 @@ private fun DeveloperCard() {
 
                 Column(Modifier.weight(1f)) {
                     Text(
-                        stringResource(R.string.about_dev_header),
+                        stringResource(Res.string.about_dev_header),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.primary,
                     )
                     Text(
-                        stringResource(R.string.about_dev_name),
+                        stringResource(Res.string.about_dev_name),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        stringResource(R.string.about_dev_title),
+                        stringResource(Res.string.about_dev_title),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -267,7 +264,7 @@ private fun DeveloperCard() {
             Spacer(Modifier.height(12.dp))
 
             Text(
-                stringResource(R.string.about_dev_bio),
+                stringResource(Res.string.about_dev_bio),
                 fontSize = 13.sp,
                 lineHeight = 20.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -276,18 +273,15 @@ private fun DeveloperCard() {
     }
 }
 
-*/
 /* ----------------------------------------------------------------------
  * Contact Section
- * -------------------------------------------------------------------- *//*
-
+ * -------------------------------------------------------------------- */
 
 @Composable
-private fun ContactSection() {
-    val context = LocalContext.current
+private fun ContactSection(onOpenUri: (String) -> Unit) {
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
-            stringResource(R.string.about_contact_me),
+            stringResource(Res.string.about_contact_me),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold
         )
@@ -295,9 +289,10 @@ private fun ContactSection() {
             FadeSlideIn(delayMs = 800 + index * 120) {
                 ContactRow(
                     item,
-                    isBottom = index == contacts.lastIndex,
                     isTop = index == 0,
-                    onClick = { context.openUri(item.uri) })
+                    isBottom = index == contacts.lastIndex,
+                    onClick = { onOpenUri(item.uri) },
+                )
             }
         }
     }
@@ -305,28 +300,23 @@ private fun ContactSection() {
 
 @Composable
 private fun ContactRow(
-    item: ContactInfo, onClick: () -> Unit,
+    item: ContactInfo,
+    onClick: () -> Unit,
     isTop: Boolean = false,
-    isBottom: Boolean = false
+    isBottom: Boolean = false,
 ) {
+    val shape = RoundedCornerShape(
+        topStart = if (isTop) 16.dp else 4.dp,
+        topEnd = if (isTop) 16.dp else 4.dp,
+        bottomStart = if (isBottom) 16.dp else 4.dp,
+        bottomEnd = if (isBottom) 16.dp else 4.dp
+    )
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(
-                RoundedCornerShape(
-                    topStart = if (isTop) 16.dp else 4.dp,
-                    topEnd = if (isTop) 16.dp else 4.dp,
-                    bottomStart = if (isBottom) 16.dp else 4.dp,
-                    bottomEnd = if (isBottom) 16.dp else 4.dp
-                )
-            )
+            .clip(shape)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(
-            topStart = if (isTop) 16.dp else 4.dp,
-            topEnd = if (isTop) 16.dp else 4.dp,
-            bottomStart = if (isBottom) 16.dp else 4.dp,
-            bottomEnd = if (isBottom) 16.dp else 4.dp
-        ),
+        shape = shape,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Row(
@@ -342,13 +332,13 @@ private fun ContactRow(
             ) {
                 Icon(
                     item.icon,
-                    contentDescription = stringResource(item.labelRes),
+                    contentDescription = stringResource(item.label),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
             Spacer(Modifier.size(14.dp))
             Column {
-                Text(stringResource(item.labelRes), fontWeight = FontWeight.Medium)
+                Text(stringResource(item.label), fontWeight = FontWeight.Medium)
                 Text(
                     item.value,
                     fontSize = 13.sp,
@@ -374,17 +364,3 @@ private fun FadeSlideIn(delayMs: Int, content: @Composable () -> Unit) {
         content()
     }
 }
-
-// Safely launches an external browser/email app for a given URI with a fallback error toast
-private fun Context.openUri(uri: String) {
-    try {
-        startActivity(
-            Intent(
-                Intent.ACTION_VIEW,
-                uri.toUri()
-            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        )
-    } catch (_: Exception) {
-        Toast.makeText(this, getString(R.string.no_app_to_open_link), Toast.LENGTH_SHORT).show()
-    }
-}*/

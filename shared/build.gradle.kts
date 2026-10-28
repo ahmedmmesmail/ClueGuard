@@ -62,6 +62,9 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.androidx.room3.runtime)
             implementation(libs.androidx.sqlite.bundled)
+
+            implementation("com.russhwolf:multiplatform-settings-no-arg:1.3.0")
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
