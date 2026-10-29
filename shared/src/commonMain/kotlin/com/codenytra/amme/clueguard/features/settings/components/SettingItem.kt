@@ -1,4 +1,4 @@
-package com.codenytra.amme.el_8animah.features.settings.components
+package com.codenytra.amme.clueguard.features.settings.components
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

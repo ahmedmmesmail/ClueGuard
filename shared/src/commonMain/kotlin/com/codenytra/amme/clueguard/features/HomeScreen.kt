@@ -1,6 +1,7 @@
 package com.codenytra.amme.clueguard.features
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,6 +57,7 @@ import clueguard.shared.generated.resources.Res
 import clueguard.shared.generated.resources.icon
 import com.codenytra.amme.clueguard.BrandGradient
 import com.codenytra.amme.clueguard.data.database.LocalClueGuardDatabase
+import com.codenytra.amme.clueguard.data.repository.LocalPasswordRepository
 import com.codenytra.amme.clueguard.data.repository.PasswordRepository
 import com.codenytra.amme.clueguard.data.repository.PasswordSummary
 import com.codenytra.amme.clueguard.security.SecurityResult
@@ -66,16 +68,12 @@ import org.jetbrains.compose.resources.painterResource
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
-fun HomeScreen(onSettingsClick: () -> Unit) {
+fun HomeScreen(
+    onSettingsClick: () -> Unit,
+    onIconClick: () -> Unit
+) {
 
-    val database = LocalClueGuardDatabase.current
-
-    val repository = remember(database) {
-        PasswordRepository(
-            dao = database.passwordDao,
-            encryption = createEncryptionManager()
-        )
-    }
+    val repository = LocalPasswordRepository.current
 
     val passwords by repository.observeAll()
         .collectAsState(initial = emptyList())
@@ -102,6 +100,7 @@ fun HomeScreen(onSettingsClick: () -> Unit) {
                                 .size(40.dp)
                                 .clip(MaterialTheme.shapes.medium)
                                 .background(BrandGradient)
+                                .clickable(onClick = onIconClick)
                         ) {
                             Icon(
                                 painter = painterResource(Res.drawable.icon),

@@ -25,8 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.codenytra.amme.el_8animah.features.settings.components.SettingItem
-import com.codenytra.amme.el_8animah.features.settings.components.SettingsTrailing
 
 // Renders an individual setting row with dynamic corner rounding based on list position
 @Composable

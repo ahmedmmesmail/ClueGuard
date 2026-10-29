@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.codenytra.amme.el_8animah.features.settings.components.SettingItem
 
 // Groups a category header and a list of SettingItem rows into a visual section
 @Composable

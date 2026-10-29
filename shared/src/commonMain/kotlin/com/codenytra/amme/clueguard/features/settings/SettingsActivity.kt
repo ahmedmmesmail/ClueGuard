@@ -49,16 +49,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import clueguard.shared.generated.resources.*
 import com.codenytra.amme.clueguard.features.locale.LocaleViewModel
 import com.codenytra.amme.clueguard.getPlatform
+import com.codenytra.amme.clueguard.rememberShareHandler
 import com.codenytra.amme.clueguard.ui.components.FeedbackSheet
 import com.codenytra.amme.clueguard.ui.components.LanguagePickerSheet
+import org.jetbrains.compose.resources.stringResource
 
 private data class SettingsOption(
     val title: String,
@@ -77,7 +79,10 @@ fun SettingsScreen(
     var showFeedbackSheet by rememberSaveable { mutableStateOf(false) }
     var showLanguageSheet by rememberSaveable { mutableStateOf(false) }
     val localeVm: LocaleViewModel = viewModel()
-    val uriHandler = LocalUriHandler.current
+
+    val share = rememberShareHandler()
+    val shareMessage = stringResource(Res.string.share_app_message)
+    val shareTitle = stringResource(Res.string.share_app_title)
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -218,9 +223,10 @@ fun SettingsScreen(
                     ),
                     isFirst = true,
                     onClick = {
-                        runCatching {
-                            uriHandler.openUri("https://play.google.com/store/apps/details?id=com.codenytra.amme.clueguard")
-                        }
+                        share.shareText(
+                            text = "$shareMessage https://play.google.com/store/apps/details?id=com.codenytra.amme.clueguard",
+                            title = shareTitle
+                        )
                     }
                 )
             }

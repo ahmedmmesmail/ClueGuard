@@ -1,36 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- ============ عام ============ -->
-    <string name="app_name">El8animah</string>                <!-- انسخ قيمتك الأصلية -->
-    <string name="app_desc">TODO: انسخ وصف التطبيق من strings.xml القديم</string>
+    <!-- ============ General ============ -->
+    <string name="app_name">ClueGuard</string>
+    <string name="app_desc">ClueGuard is a simple password manager that helps you keep your account credentials organized in one place, stored locally on your device.</string>
+    <string name="settings_version">Version</string>
     <string name="app_icon_desc">App icon</string>
     <string name="back">Back</string>
     <string name="auto">Auto</string>
+    <string name="no_app_to_open_link">No app found to open this link</string>
+    <string name="share_app_title">Share app</string>
+    <string name="share_app_message">Check out ClueGuard:</string>
 
-    <!-- ============ About ============ -->
+    <!-- About Screen -->
     <string name="about_title">About</string>
-    <string name="settings_version">Version</string>
-    <string name="about_dev_header">Developed by</string>
-    <string name="about_dev_name">TODO: انسخ الاسم</string>
-    <string name="about_dev_title">TODO: انسخ المسمى الوظيفي</string>
-    <string name="about_dev_bio">TODO: انسخ النبذة</string>
-    <string name="about_contact_me">Contact me</string>
+    <string name="about_dev_name">ahmedmmesmail</string>
+    <string name="about_dev_title">App Developer &amp; Software Engineer</string>
+    <string name="about_dev_bio">Passionate Android developer who loves building simple, practical, and beautiful apps.</string>
+    <string name="about_dev_header">About Developer</string>
+    <string name="about_contact_me">Get in Touch</string>
     <string name="about_contact_email">Email</string>
     <string name="about_contact_portfolio">Portfolio</string>
     <string name="about_contact_github">GitHub</string>
     <string name="about_contact_linkedin">LinkedIn</string>
-    <string name="about_made_with">Made with</string>
-    <string name="about_in_egypt">in Egypt</string>
-    <string name="no_app_to_open_link">No app found to open this link</string>
-
-    <!-- ============ Our Apps ============ -->
-    <string name="settings_our_apps">Our Apps</string>
-    <string name="app_motmaan_name">Motmaan</string>
-    <string name="app_motmaan_desc">TODO: انسخ الوصف</string>
-    <string name="app_cinemeteor_name">Cinemeteor</string>
-    <string name="app_cinemeteor_desc">TODO: انسخ الوصف</string>
-    <string name="app_detauro_name">Detauro</string>
-    <string name="app_detauro_desc">TODO: انسخ الوصف</string>
+    <string name="about_made_with">Made with </string>
+    <string name="about_in_egypt"> in Egypt</string>
 
     <!-- ============ Feedback ============ -->
     <string name="feedback_title">Send feedback</string>
@@ -45,4 +38,14 @@
     <!-- ============ Language ============ -->
     <string name="settings_language">Language</string>
     <string name="settings_language_system">System default</string>
+
+    <!-- Our Apps Screen -->
+    <string name="settings_our_apps">Our Apps</string>
+    <string name="app_motmaan_name">Mutma\'in</string>
+    <string name="app_motmaan_desc">Your daily companion for worship: prayer times and Adhan, Adhkar, the Holy Quran, and a digital prayer beads counter.</string>
+    <string name="app_cinemeteor_name">CineMeteor</string>
+    <string name="app_cinemeteor_desc">Discover trending, popular, and top-rated movies with beautiful visuals and smart search.</string>
+    <string name="app_detauro_name">DeTauro</string>
+    <string name="app_detauro_desc">Stay focused and control your screen time by blocking apps and sites, with full respect for your privacy.</string>
+
 </resources>

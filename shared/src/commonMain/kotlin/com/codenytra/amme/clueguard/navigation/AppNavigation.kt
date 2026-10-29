@@ -45,6 +45,7 @@ private val navConfig = SavedStateConfiguration {
             subclass(Home::class, Home.serializer())
             subclass(Settings::class, Settings.serializer())
             subclass(OurApps::class, OurApps.serializer())
+            subclass(About::class, About.serializer())
         }
     }
 }
@@ -81,11 +82,10 @@ fun AppNavigation() {
 
             entryProvider = entryProvider {
                 entry<Home> {
-                    HomeScreen(onSettingsClick = {
-                        backStack.add(
-                            Settings
-                        )
-                    })
+                    HomeScreen(
+                        onSettingsClick = { backStack.add(Settings) },
+                        onIconClick = { backStack.add(About) }
+                    )
                 }
                 entry<Settings> {
                     SettingsScreen(
@@ -98,7 +98,7 @@ fun AppNavigation() {
                     OurAppsRoute(onBack = { backStack.removeLastOrNull() })
                 }
                 entry<About> {
-                    AboutScreen(versionName = "", onBack = { backStack.removeLastOrNull() })
+                    AboutScreen(versionName = "1.0.0", onBack = { backStack.removeLastOrNull() })
                 }
             }
         )

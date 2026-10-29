@@ -154,7 +154,7 @@ fun AnimatedAppIcon(modifier: Modifier = Modifier) {
                 contentDescription = stringResource(Res.string.app_icon_desc),
                 contentScale = ContentScale.Fit,
                 colorFilter = ColorFilter.tint(Color.White),
-                modifier = Modifier.fillMaxSize().padding(12.dp),
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
