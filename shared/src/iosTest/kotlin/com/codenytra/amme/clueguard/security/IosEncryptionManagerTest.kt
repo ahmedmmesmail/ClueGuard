@@ -2,6 +2,7 @@ package com.codenytra.amme.clueguard.security
 
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.runBlocking
+import platform.CoreFoundation.CFRelease
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -12,6 +13,7 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 /** Runs on the iOS Simulator (see .github/workflows/ios-check.yml). */
+@OptIn(ExperimentalForeignApi::class)
 class IosEncryptionManagerTest {
 
     private val keyManager = IosKeyManager()
@@ -35,6 +37,40 @@ class IosEncryptionManagerTest {
     private fun assertError(expected: SecurityError, result: SecurityResult<ByteArray>) {
         assertIs<SecurityResult.Error>(result)
         assertEquals(expected, result.cause)
+    }
+
+    /**
+     * TEMPORARY. Finds which native call crashes (segfault).
+     * Run the CI with `--info`, then look at the LAST "STEP" line printed
+     * before the crash. Delete this test once the crash is fixed.
+     */
+    @Test
+    fun diagnostics() = runBlocking {
+        println("STEP 1: deleteKey")
+        keyManager.deleteKey()
+
+        println("STEP 2: getKey (expected: no key)")
+        val existing = keyManager.getKey()
+        println("STEP 2 done: key == null -> ${existing == null}")
+        if (existing != null) CFRelease(existing)
+
+        println("STEP 3: getOrCreateKey (tries Secure Enclave first, then software key)")
+        val created = keyManager.getOrCreateKey()
+        println("STEP 3 done: key == null -> ${created == null}")
+        if (created != null) CFRelease(created)
+
+        println("STEP 4: encrypt")
+        val encrypted = manager.encrypt(secret, context)
+        println("STEP 4 done: $encrypted".take(80))
+
+        if (encrypted is SecurityResult.Success) {
+            println("STEP 5: decrypt")
+            val decrypted = manager.decrypt(encrypted.data, context)
+            val ok = decrypted is SecurityResult.Success && decrypted.data.contentEquals(secret)
+            println("STEP 5 done: round trip ok -> $ok")
+        } else if (encrypted is SecurityResult.Error) {
+            println("STEP 4 error cause: ${encrypted.cause}")
+        }
     }
 
     @Test
@@ -84,11 +120,11 @@ class IosEncryptionManagerTest {
         assertError(SecurityError.INVALID_CIPHERTEXT, manager.decrypt(ByteArray(10), context))
     }
 
-    @OptIn(ExperimentalForeignApi::class)
     @Test
     fun missingKeyIsReportedAndNotRecreated() = runBlocking {
         val encrypted = encryptOk()
         keyManager.deleteKey()
+
         assertError(SecurityError.KEY_NOT_FOUND, manager.decrypt(encrypted, context))
         assertEquals(null, keyManager.getKey())
     }
